@@ -21,21 +21,21 @@ void BPTreeNodeFileManager::Write(uint8_t *buf, uint32_t page, uint32_t offset, 
 }
 
 void BPTreeNodeFileManager::Write8(uint8_t value, uint32_t page, uint32_t offset) {
-    uint8_t * buf = &value;
-    Write(buf, page, offset, 1);
+    uint8_t * dest = ((uint8_t*) (_buf.GetPage(page) + offset));
+    *dest = value;
 }
 
 void BPTreeNodeFileManager::Write16(uint16_t value, uint32_t page, uint32_t offset) {
-    uint8_t * buf = (uint8_t*) &value;
-    Write(buf, page, offset, 2);
+    uint16_t * dest = ((uint16_t*) (_buf.GetPage(page) + offset));
+    *dest = value;
 }
 
 void BPTreeNodeFileManager::Write32(uint32_t value, uint32_t page, uint32_t offset) {
-    uint8_t * buf = (uint8_t*) &value;
-    Write(buf, page, offset, 4);
+    uint32_t * dest = ((uint32_t*) (_buf.GetPage(page) + offset));
+    *dest = value;
 }
 
 void BPTreeNodeFileManager::Write64(uint64_t value, uint32_t page, uint32_t offset) {
-    uint8_t * buf = (uint8_t*) &value;
-    Write(buf, page, offset, 8);
+    uint64_t * dest = ((uint64_t*) (_buf.GetPage(page) + offset));
+    *dest = value;
 }

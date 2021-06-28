@@ -4,18 +4,14 @@
 
 #include "BPTreeHeader.h"
 
-BPTreeHeader::BPTreeHeader(const std::shared_ptr<BPTreeNodeManager>& nodeMan):
-    BPTreePage<BPTreeHeaderStruct>(nodeMan) {
-
-}
-
-const BPTreeHeaderStruct * BPTreeHeader::Content() {
-    auto nodeMan = _nodeMan.lock();
-    return (BPTreeHeaderStruct*) nodeMan->Read(0, 0, PAGE_SIZE);
+void BPTreeHeader::Init() {
+    SetType(BPTREE_PAGE_TYPE_HEADER);
+    SetRoot(0);
+    SetFree(0);
 }
 
 uint32_t BPTreeHeader::GetRoot() {
-    return Content()->root;
+    return Header()->root;
 }
 
 void BPTreeHeader::SetRoot(uint32_t _root) {
@@ -23,7 +19,7 @@ void BPTreeHeader::SetRoot(uint32_t _root) {
 }
 
 uint32_t BPTreeHeader::GetFree() {
-    return Content()->free;
+    return Header()->free;
 }
 
 void BPTreeHeader::SetFree(uint32_t _free) {

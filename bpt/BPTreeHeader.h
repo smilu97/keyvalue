@@ -11,10 +11,11 @@
 #include "BPTreePage.h"
 #include "common.h"
 
-#define HEADER_ROOT_OFFSET (0)
-#define HEADER_FREE_OFFSET (4)
+#define HEADER_ROOT_OFFSET (4)
+#define HEADER_FREE_OFFSET (8)
 
 struct BPTreeHeaderStruct {
+    uint32_t type;
     uint32_t root;
     uint32_t free;
 };
@@ -22,13 +23,11 @@ struct BPTreeHeaderStruct {
 class BPTreeHeader: public BPTreePage<BPTreeHeaderStruct> {
     std::weak_ptr<BPTreeNodeManager> _nodeMan;
 public:
-    explicit BPTreeHeader(const std::shared_ptr<BPTreeNodeManager>& nodeMan);
+    void Init() override;
     uint32_t GetRoot();
     void SetRoot(uint32_t _root);
     uint32_t GetFree();
     void SetFree(uint32_t _free);
-private:
-    const BPTreeHeaderStruct * Content() override;
 };
 
 
