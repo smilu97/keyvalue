@@ -8,14 +8,18 @@
 #include "CachePolicy.h"
 
 #include <vector>
+#include <unordered_map>
+#include <optional>
 #include <cstdint>
 
 class SecondChance: public CachePolicy {
     uint32_t _cur;
-    std::vector<bool> _lifes;
+    std::unordered_map<uint32_t, uint32_t> _position;
+    std::vector<uint8_t> _lifes;
 public:
-    SecondChance(uint32_t sz);
-    std::pair<uint32_t, uint32_t> push(uint32_t n);
+    explicit SecondChance(uint32_t sz);
+    std::optional<uint32_t> Get(uint32_t n) override;
+    std::pair<uint32_t, std::optional<uint32_t>> Load(uint32_t n) override;
 };
 
 
