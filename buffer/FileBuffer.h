@@ -7,19 +7,21 @@
 
 #include "FileManager.h"
 #include "SecondChance.h"
+#include "common.h"
 
 #include <memory>
-
-#define PAGE_SIZE (0x1000)
+#include <unordered_map>
 
 class FileBuffer {
     FileManager _file;
     uint _sz;
     uint8_t * _buf;
-    std::auto_ptr<CachePolicy> _policy;
+    std::unique_ptr<CachePolicy> _policy;
 public:
-    FileBuffer(const std::string& filepath, uint sz);
-    void* GetPage(int index);
+    FileBuffer(const std::string &filepath, std::unique_ptr<CachePolicy> policy, uint32_t sz);
+    uint8_t* GetPage(uint32_t n);
+private:
+    uint8_t* LoadPage(uint32_t n);
 };
 
 

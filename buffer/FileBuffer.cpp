@@ -4,15 +4,28 @@
 
 #include "FileBuffer.h"
 
-FileBuffer::FileBuffer(const std::string &filepath, uint sz): _file(filepath), _sz(sz) {
+FileBuffer::FileBuffer(
+        const std::string &filepath,
+        std::unique_ptr<CachePolicy> policy,
+        uint32_t sz): _file(filepath), _sz(sz) {
     _buf = (uint8_t*) malloc(PAGE_SIZE * sz);
-    _policy = std::auto_ptr<CachePolicy>(new SecondChance(sz));
+    _policy = std::move(policy);
 }
 
-void* FileBuffer::GetPage(int index) {
-    auto victim = _policy->push(index);
-    uint8_t * buf = _buf + (PAGE_SIZE * victim.first);
-    _file.Write(buf, PAGE_SIZE * victim.second, PAGE_SIZE);
-    _file.Read(buf, PAGE_SIZE * index, PAGE_SIZE);
+uint8_t* FileBuffer::GetPage(uint32_t n) {
+    const auto index = _policy->Get(n);
+    if (index.has_value()) {
+        return _buf + (PAGE_SIZE * index.value());
+    }
+    return LoadPage(n);
+}
+
+uint8_t* FileBuffer::LoadPage(uint32_t n) {
+    auto replace = _policy->Load(n);
+    uint8_t * buf = _buf + (PAGE_SIZE * replace.first);
+    if (replace.second.has_value()) {
+        _file.Write(buf, PAGE_SIZE * replace.second.value(), PAGE_SIZE);
+    }
+    _file.Read(buf, PAGE_SIZE * n, PAGE_SIZE);
     return buf;
 }
