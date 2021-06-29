@@ -7,12 +7,16 @@
 FileBuffer::FileBuffer(
         const std::string &filepath,
         std::unique_ptr<CachePolicy> policy,
-        uint32_t sz): _file(filepath), _sz(sz) {
-    _buf = (uint8_t*) malloc(PAGE_SIZE * sz);
+        size_t sz): _file(filepath), _sz(sz) {
+    _buf =  new byte[PAGE_SIZE * sz];
     _policy = std::move(policy);
 }
 
-uint8_t* FileBuffer::GetPage(uint32_t n) {
+FileBuffer::~FileBuffer() {
+    delete[] _buf;
+}
+
+uint8_t* FileBuffer::GetPage(page_t n) {
     const auto index = _policy->Get(n);
     if (index.has_value()) {
         return _buf + (PAGE_SIZE * index.value());
@@ -20,7 +24,7 @@ uint8_t* FileBuffer::GetPage(uint32_t n) {
     return LoadPage(n);
 }
 
-uint8_t* FileBuffer::LoadPage(uint32_t n) {
+uint8_t* FileBuffer::LoadPage(page_t n) {
     auto replace = _policy->Load(n);
     uint8_t * buf = _buf + (PAGE_SIZE * replace.first);
     if (replace.second.has_value()) {

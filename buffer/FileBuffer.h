@@ -15,13 +15,14 @@
 class FileBuffer {
     FileManager _file;
     uint _sz;
-    uint8_t * _buf;
+    byte * _buf;
     std::unique_ptr<CachePolicy> _policy;
 public:
-    FileBuffer(const std::string &filepath, std::unique_ptr<CachePolicy> policy, uint32_t sz);
-    uint8_t* GetPage(uint32_t n);
+    FileBuffer(const std::string &filepath, std::unique_ptr<CachePolicy> policy, size_t sz);
+    ~FileBuffer();
+    byte* GetPage(page_t n);
 private:
-    uint8_t* LoadPage(uint32_t n);
+    byte* LoadPage(page_t n);
 };
 
 
