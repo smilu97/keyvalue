@@ -5,12 +5,22 @@
 #ifndef KEYVALUE_COMMON_H
 #define KEYVALUE_COMMON_H
 
+#include <cstdint>
+
 #define PAGE_SIZE (0x1000)
 
 #define BPTREE_HEADER_SIZE (128)
 
-#define BPTREE_PAGE_TYPE_HEADER (0)
-#define BPTREE_PAGE_TYPE_INTERNAL (1)
-#define BPTREE_PAGE_TYPE_LEAF (2)
+enum BPTreePageType {
+    BPTREE_PAGE_TYPE_HEADER = 0,
+    BPTREE_PAGE_TYPE_INTERNAL,
+    BPTREE_PAGE_TYPE_LEAF,
+    BPTREE_PAGE_TYPE_FREE
+};
+
+typedef uint64_t page_t;
+typedef uint64_t offset_t;
+typedef uint8_t byte;
+typedef uint64_t size_t;
 
 #endif //KEYVALUE_COMMON_H
