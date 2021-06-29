@@ -23,7 +23,9 @@ public:
     uint32_t LowerBound(Key key) const;
     void Init() override;
     [[nodiscard]] uint32_t GetLength() const;
+    [[nodiscard]] Key GetKey(offset_t index) const;
     void Insert(Key key, const Value * pValue);
+    std::pair<Key, BPTreeLeafNode<Key, Value>> Split(page_t newPage);
 private:
     Key GetNthKey(uint32_t n) const;
     const Value* GetNthValue(uint32_t n) const;

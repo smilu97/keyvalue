@@ -2,6 +2,8 @@
 // Created by smilu97 on 21. 6. 27..
 //
 
+#include <cstring>
+
 #include "BPTreeLeafNode.h"
 #include "util.h"
 
@@ -120,4 +122,33 @@ void BPTreeLeafNode<Key, Value>::SetValue(uint32_t index, const Value *pValue) {
     const size_t unit = sizeof(Key) + sizeof(Value);
     const size_t offset = BPTREE_HEADER_SIZE + sizeof(Key) + unit * index;
     Update(offset, (byte*) pValue, sizeof(Value));
+}
+
+template<class Key, class Value>
+std::pair<Key, BPTreeLeafNode<Key, Value>> BPTreeLeafNode<Key, Value>::Split(page_t newPage) {
+    const size_t length = GetLength();
+    const size_t leftLength = (length >> 1);
+    const size_t rightLength = length - leftLength;
+    const size_t unit = sizeof(Key) + sizeof(Value);
+
+    const byte* rightContent = Read(BPTREE_HEADER_SIZE + leftLength * unit, rightLength * unit);
+    byte* buf = new byte[rightLength * unit];
+    memcpy(buf, rightContent, rightLength * unit);
+    SetLength(leftLength);
+
+    auto right = BPTreeLeafNode<Key, Value>(GetNodeManager(), newPage);
+    right.Init();
+    right.Update(BPTREE_HEADER_SIZE, buf, rightLength * unit);
+    right.SetLength(rightLength);
+    auto rightFirst = right.GetKey(0);
+
+    delete[] buf;
+
+    return std::make_pair(rightFirst, right);
+}
+
+template<class Key, class Value>
+Key BPTreeLeafNode<Key, Value>::GetKey(offset_t index) const {
+    const size_t unit = sizeof(Key) + sizeof(Value);
+    return *((Key*)Read(BPTREE_HEADER_SIZE + unit * index, sizeof(Key)));
 }

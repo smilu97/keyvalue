@@ -5,10 +5,12 @@
 #ifndef KEYVALUE_BPTREE_H
 #define KEYVALUE_BPTREE_H
 
+#include "util.h"
 #include "BPTreeNodeManager.h"
 #include "BPTreeHeader.h"
 #include "BPTreeInternalNode.h"
 #include "BPTreeLeafNode.h"
+#include "BPTreeFreePage.h"
 
 #include <memory>
 #include <optional>
@@ -16,12 +18,17 @@
 template <class Key, class Value>
 class BPTree {
     std::shared_ptr<BPTreeNodeManager> _nodeMan;
+    uint32_t _internalBranchFactor;
+    uint32_t _leafBranchFactor;
 public:
-    explicit BPTree(std::shared_ptr<BPTreeNodeManager> nodeMan);
-    std::optional<Value*> Find(Key key);
+    explicit BPTree(std::shared_ptr<BPTreeNodeManager> nodeMan, float branchFactorMultiplier);
+    std::optional<Value*> Find(Key key) const;
+    void Insert(Key key, const Value* pValue);
 private:
-    BPTreeHeader Header();
-    std::optional<BPTreeLeafNode<Key, Value>> FindLeaf(Key key);
+    [[nodiscard]] BPTreeHeader Header() const;
+    std::optional<BPTreeLeafNode<Key, Value>> FindLeaf(Key key) const;
+    uint32_t AllocatePage();
+    uint32_t AppendPage();
 };
 
 

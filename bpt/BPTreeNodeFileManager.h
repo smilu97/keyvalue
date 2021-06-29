@@ -16,12 +16,12 @@ public:
     BPTreeNodeFileManager(const std::string &filepath,
                           std::unique_ptr<CachePolicy> policy,
                           uint32_t cacheSize);
-    uint8_t* Read(uint32_t page, uint32_t offset, uint32_t size) override;
-    void Write(uint8_t *buf, uint32_t page, uint32_t offset, uint32_t size) override;
-    void Write8(uint8_t value, uint32_t page, uint32_t offset) override;
-    void Write16(uint16_t value, uint32_t page, uint32_t offset) override;
-    void Write32(uint32_t value, uint32_t page, uint32_t offset) override;
-    void Write64(uint64_t value, uint32_t page, uint32_t offset) override;
+    byte* Read(page_t page, offset_t offset, size_t size) override;
+    void Write(byte *buf, page_t page, offset_t offset, size_t size) override;
+    void Write8(uint8_t value, page_t page, offset_t offset) override;
+    void Write16(uint16_t value, page_t page, offset_t offset) override;
+    void Write32(uint32_t value, page_t page, offset_t offset) override;
+    void Write64(uint64_t value, page_t page, offset_t offset) override;
 };
 
 

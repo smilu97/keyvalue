@@ -124,3 +124,36 @@ void BPTreeInternalNode<Key, Value>::SetPtr(uint32_t index, page_t page) {
     const size_t offset = BPTREE_HEADER_SIZE + sizeof(Key) + unit * index;
     Update(offset, (byte*) &page, sizeof(page_t));
 }
+
+template<class Key, class Value>
+void BPTreeInternalNode<Key, Value>::InsertBase(page_t p0, Key key, page_t p1) {
+    SetPtr(0, p0);
+    SetPtr(1, p1);
+    SetKey(0, key);
+    SetLength(1);
+}
+
+template<class Key, class Value>
+std::pair<Key, BPTreeInternalNode<Key, Value>> BPTreeInternalNode<Key, Value>::Split(page_t newPage) {
+    const size_t length = GetLength();
+    const size_t leftLength = ((length - 1) >> 1);
+    const size_t rightLength = (length - 1) - leftLength;
+    const size_t unit = sizeof(Key) + sizeof(page_t);
+    const size_t rightSize = rightLength * unit + sizeof(Key);
+    const size_t rightOffset = BPTREE_HEADER_SIZE + (leftLength + 1) * unit;
+
+    const byte* rightContent = Read(rightOffset, rightSize);
+    byte* buf = new byte[rightSize];
+    memcpy(buf, rightContent, rightSize);
+    auto midKey = GetNthKey((length - 1) >> 1);
+    SetLength(leftLength);
+
+    auto right = BPTreeLeafNode<Key, Value>(GetNodeManager(), newPage);
+    right.Init();
+    right.Update(BPTREE_HEADER_SIZE, buf, rightSize);
+    right.SetLength(rightLength);
+
+    delete[] buf;
+
+    return std::make_pair(midKey, right);
+}

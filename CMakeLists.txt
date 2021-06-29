@@ -16,4 +16,4 @@ add_executable(keyvalue
         bpt/BPTreeLeafNode.cpp bpt/BPTreeLeafNode.h
         bpt/BPTreeInternalNode.cpp bpt/BPTreeInternalNode.h
         bpt/BPTreeNodeManager.h
-        bpt/BPTreeNodeFileManager.cpp bpt/BPTreeNodeFileManager.h bpt/BPTreeHeader.cpp bpt/BPTreeHeader.h common.h bpt/BPTreePage.cpp bpt/BPTreePage.h)
+        bpt/BPTreeNodeFileManager.cpp bpt/BPTreeNodeFileManager.h bpt/BPTreeHeader.cpp bpt/BPTreeHeader.h common.h bpt/BPTreePage.cpp bpt/BPTreePage.h bpt/BPTreeFreePage.cpp bpt/BPTreeFreePage.h)

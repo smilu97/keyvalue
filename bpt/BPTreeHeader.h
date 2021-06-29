@@ -13,21 +13,25 @@
 
 #define HEADER_ROOT_OFFSET (4)
 #define HEADER_FREE_OFFSET (8)
+#define HEADER_LENGTH_OFFSET (12)
 
 struct BPTreeHeaderStruct {
     uint32_t type;
     uint32_t root;
     uint32_t free;
+    uint32_t length;
 };
 
 class BPTreeHeader: public BPTreePage<BPTreeHeaderStruct> {
     std::weak_ptr<BPTreeNodeManager> _nodeMan;
 public:
     void Init() override;
-    uint32_t GetRoot();
+    [[nodiscard]] uint32_t GetRoot() const;
     void SetRoot(uint32_t _root);
-    uint32_t GetFree();
+    [[nodiscard]] uint32_t GetFree() const;
     void SetFree(uint32_t _free);
+    [[nodiscard]] uint32_t GetLength() const;
+    void SetLength(uint32_t _length);
 };
 
 

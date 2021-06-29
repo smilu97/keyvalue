@@ -24,7 +24,9 @@ public:
     void Init() override;
     [[nodiscard]] uint32_t GetLength() const;
     page_t FindPage(Key key) const;
+    void InsertBase(page_t p0, Key key, page_t p1);
     void Insert(Key key, page_t page);
+    std::pair<Key, BPTreeInternalNode<Key, Value>> Split(page_t newPage);
 private:
     uint32_t FindIndex(Key key) const;
     void SetLength(uint32_t length);

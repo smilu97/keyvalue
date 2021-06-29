@@ -7,14 +7,16 @@
 
 #include <cstdint>
 
+#include "common.h"
+
 class BPTreeNodeManager {
 public:
-    virtual uint8_t* Read(uint32_t page, uint32_t offset, uint32_t size) = 0;
-    virtual void Write(uint8_t *buf, uint32_t page, uint32_t offset, uint32_t size) = 0;
-    virtual void Write8(uint8_t value, uint32_t page, uint32_t offset) = 0;
-    virtual void Write16(uint16_t value, uint32_t page, uint32_t offset) = 0;
-    virtual void Write32(uint32_t value, uint32_t page, uint32_t offset) = 0;
-    virtual void Write64(uint64_t value, uint32_t page, uint32_t offset) = 0;
+    virtual byte* Read(page_t page, offset_t offset, size_t size) = 0;
+    virtual void Write(byte *buf, page_t page, offset_t offset, size_t size) = 0;
+    virtual void Write8(uint8_t value, page_t page, offset_t offset) = 0;
+    virtual void Write16(uint16_t value, page_t page, offset_t offset) = 0;
+    virtual void Write32(uint32_t value, page_t page, offset_t offset) = 0;
+    virtual void Write64(uint64_t value, page_t page, offset_t offset) = 0;
 };
 
 
