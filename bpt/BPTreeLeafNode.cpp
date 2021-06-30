@@ -152,3 +152,29 @@ Key BPTreeLeafNode<Key, Value>::GetKey(offset_t index) const {
     const size_t unit = sizeof(Key) + sizeof(Value);
     return *((Key*)Read(BPTREE_HEADER_SIZE + unit * index, sizeof(Key)));
 }
+
+template<class Key, class Value>
+bool BPTreeLeafNode<Key, Value>::Erase(Key key) {
+    const uint32_t index = LowerBound(key);
+    if (GetKey(index) != key)
+        return false;
+
+    ShiftLeft(index);
+    return true;
+}
+
+template<class Key, class Value>
+void BPTreeLeafNode<Key, Value>::Merge(const BPTreeLeafNode<Key, Value> &target) {
+    const size_t targetLength = target.GetLength();
+    const size_t unit = sizeof(Key) + sizeof(Value);
+    const size_t targetSize = targetLength * unit;
+    byte * buf = new byte[targetSize];
+    byte * targetBuf = target.Read(BPTREE_HEADER_SIZE, targetSize);
+    memcpy(buf, targetBuf, targetSize);
+
+    const size_t length = GetLength();
+    Update(BPTREE_HEADER_SIZE + length * unit, buf, targetSize);
+    SetLength(length + targetLength);
+
+    delete[] buf;
+}

@@ -25,6 +25,8 @@ public:
     [[nodiscard]] uint32_t GetLength() const;
     [[nodiscard]] Key GetKey(offset_t index) const;
     void Insert(Key key, const Value * pValue);
+    bool Erase(Key key);
+    void Merge(const BPTreeLeafNode<Key, Value> & target);
     std::pair<Key, BPTreeLeafNode<Key, Value>> Split(page_t newPage);
 private:
     Key GetNthKey(uint32_t n) const;
