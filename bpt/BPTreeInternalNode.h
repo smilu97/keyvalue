@@ -12,10 +12,12 @@
 #include "common.h"
 
 #define INTERNAL_LENGTH_OFFSET (4)
+#define INTERNAL_NEXT_OFFSET (12)
 
 struct BPTreeInternalNodeStruct {
     uint32_t type;
-    uint32_t length;
+    uint64_t length;
+    uint64_t next;
 };
 
 template <class Key, class Value>
@@ -23,15 +25,22 @@ class BPTreeInternalNode: public BPTreePage<BPTreeInternalNodeStruct> {
 public:
     void Init() override;
     [[nodiscard]] uint32_t GetLength() const;
+    [[nodiscard]] page_t GetNext() const;
+    [[nodiscard]] Key GetFirstPage() const;
+    [[nodiscard]] Key GetNthKey(uint32_t n) const;
     page_t FindPage(Key key) const;
+    page_t FindLeftOf(Key key) const;
+    uint32_t FindIndex(Key key) const;
+    void EraseOf(Key key);
     void InsertBase(page_t p0, Key key, page_t p1);
     void Insert(Key key, page_t page);
-    void Merge(Key midKey, const BPTreeInternalNode<Key, Value> & target)
+    void Merge(Key midKey, const BPTreeInternalNode<Key, Value> & target);
+    Key Redistribute(Key midKey, const BPTreeInternalNode<Key, Value> & target, size_t bf);
+    void ReplaceKeyOf(Key key, Key newKey);
     std::pair<Key, BPTreeInternalNode<Key, Value>> Split(page_t newPage);
 private:
-    uint32_t FindIndex(Key key) const;
     void SetLength(uint32_t length);
-    Key GetNthKey(uint32_t n) const;
+    void SetNext(page_t next);
     [[nodiscard]] uint32_t GetNthPage(uint32_t n) const;
     void ShiftRight(uint32_t index);
     void ShiftLeft(uint32_t index);

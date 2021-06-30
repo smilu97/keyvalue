@@ -21,13 +21,15 @@ class BPTree {
     uint32_t _internalBranchFactor;
     uint32_t _leafBranchFactor;
 public:
-    explicit BPTree(std::shared_ptr<BPTreeNodeManager> nodeMan, float branchFactorMultiplier);
+    explicit BPTree(std::shared_ptr<BPTreeNodeManager> nodeMan, float branchFactorMultiplier = 0.8);
     std::optional<Value*> Find(Key key) const;
+    bool Erase(Key key);
     void Insert(Key key, const Value* pValue);
 private:
     [[nodiscard]] BPTreeHeader Header() const;
     std::optional<BPTreeLeafNode<Key, Value>> FindLeaf(Key key) const;
     uint32_t AllocatePage();
+    void FreePage(page_t page);
     uint32_t AppendPage();
 };
 

@@ -121,3 +121,98 @@ uint32_t BPTree<Key, Value>::AppendPage() {
     Header().SetLength(length + 1);
     return length;
 }
+
+template<class Key, class Value>
+bool BPTree<Key, Value>::Erase(Key key) {
+    BPTreeLeafNode<Key, Value> leaf;
+    uint32_t rootPage = Header()->GetRoot();
+
+    if (rootPage == 0) {
+        return false;
+    } else {
+        std::stack<BPTreeInternalNode<Key, Value>> internals;
+        auto cur = BPTreeInternalNode<Key, Value>(_nodeMan, rootPage);
+        while (cur.IsInternal()) {
+            internals.push(cur);
+            cur = cur.FindPage(key);
+        }
+        auto leaf = BPTreeLeafNode<Key, Value>(_nodeMan, cur.GetPage());
+        if (false == leaf.Erase(key))
+            return false;
+
+        if (leaf.GetLength() < _leafBranchFactor) {
+            if (rootPage == leaf.GetPage())
+                return true;
+
+            page_t nextPage = leaf.GetNext();
+            BPTreeLeafNode<Key, Value> nextLeaf;
+            if (nextPage == 0) {
+                const page_t leftPage = internals.top().FindLeftOf(key);
+                nextLeaf = BPTreeLeafNode<Key, Value>(_nodeMan, leftPage);
+                std::swap(leaf, nextLeaf);
+            } else {
+                nextLeaf = BPTreeLeafNode<Key, Value>(_nodeMan, nextPage);
+            }
+
+            if (leaf.GetLength() == _leafBranchFactor
+                || nextLeaf.GetLength() == _leafBranchFactor) {
+                leaf.Merge(nextLeaf);
+                FreePage(nextLeaf.GetPage());
+                internals.top().EraseOf(nextLeaf.GetKey(0));
+            } else {
+                leaf.Redistribute(nextLeaf, _leafBranchFactor);
+                return true;
+            }
+
+            while (false == internals.empty()
+                && internals.top().GetLength() < _internalBranchFactor) {
+                BPTreeInternalNode<Key, Value> curr, nextInternal;
+                curr = internals.top();
+                internals.pop();
+
+                if (internals.empty())
+                    return true;
+
+                BPTreeInternalNode<Key, Value> parent = internals.top();
+
+                if (curr.GetNext() == 0) {
+                    nextInternal = BPTreeInternalNode<Key, Value>(_nodeMan, parent.FindLeftOf(key));
+                    swap(curr, nextInternal);
+                } else {
+                    nextInternal = BPTreeInternalNode<Key, Value>(_nodeMan, curr.GetNext());
+                }
+
+                const Key midKey = parent.GetNthKey(parent.FindIndex(curr.GetNthKey(0)));
+                if (curr.GetLength() == _internalBranchFactor
+                 || nextInternal.GetLength() == _internalBranchFactor) {
+                    curr.Merge(midKey, nextInternal);
+                    FreePage(nextInternal.GetPage());
+                    parent.EraseOf(nextInternal.GetNthKey(0));
+                } else {
+                    Key nextFirstKey = nextInternal.GetNthKey(0);
+                    const Key newMidKey = curr.Redistribute(midKey, nextInternal, _internalBranchFactor);
+                    parent.ReplaceKeyOf(nextFirstKey, newMidKey);
+                    return true;
+                }
+            }
+        }
+    }
+
+    auto internalRoot = BPTreeInternalNode<Key, Value>(_nodeMan, rootPage);
+    if (internalRoot.IsInternal() && internalRoot.GetLength() == 0) {
+        const page_t nextRoot = internalRoot.GetFirstPage();
+        FreePage(rootPage);
+        Header().SetRoot(nextRoot);
+    }
+
+    return true;
+}
+
+template<class Key, class Value>
+void BPTree<Key, Value>::FreePage(page_t page) {
+    auto freeHead = Header()->GetFree();
+    auto freePage = BPTreeFreePage(_nodeMan, page);
+    freePage.Init();
+    freePage.SetNext(freeHead);
+    Header().SetFree(page);
+}

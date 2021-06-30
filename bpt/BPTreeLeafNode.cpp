@@ -10,6 +10,8 @@
 template <class Key, class Value>
 void BPTreeLeafNode<Key, Value>::Init() {
     SetType(BPTREE_PAGE_TYPE_LEAF);
+    SetLength(0);
+    SetNext(0);
 }
 
 template<class Key, class Value>
@@ -87,8 +89,8 @@ void BPTreeLeafNode<Key, Value>::ShiftLeft(uint32_t index) {
     const size_t unit = sizeof(Key) + sizeof(page_t);
     const size_t whole = unit * length + sizeof(Key);
     const size_t leftSize = unit * index + sizeof(Key);
-    const size_t rightSize = whole - leftSize;
-    const size_t midOffset = BPTREE_HEADER_SIZE + leftSize;
+    const size_t rightSize = whole - leftSize - unit;
+    const size_t midOffset = BPTREE_HEADER_SIZE + leftSize + unit;
 
     Shift(midOffset, rightSize, -unit);
     SetLength(length - 1);
@@ -171,10 +173,60 @@ void BPTreeLeafNode<Key, Value>::Merge(const BPTreeLeafNode<Key, Value> &target)
     byte * buf = new byte[targetSize];
     byte * targetBuf = target.Read(BPTREE_HEADER_SIZE, targetSize);
     memcpy(buf, targetBuf, targetSize);
-
-    const size_t length = GetLength();
-    Update(BPTREE_HEADER_SIZE + length * unit, buf, targetSize);
-    SetLength(length + targetLength);
+    Append(buf, targetLength);
 
     delete[] buf;
+}
+
+template<class Key, class Value>
+void BPTreeLeafNode<Key, Value>::Append(const byte *buf, size_t length) {
+    const size_t unit = sizeof(Key) + sizeof(Value);
+    const size_t currentLength = GetLength();
+    const size_t offset = BPTREE_HEADER_SIZE + currentLength * unit;
+    const size_t size = length * unit;
+    Update(offset, buf, size);
+    SetLength(currentLength + length);
+}
+
+template<class Key, class Value>
+void BPTreeLeafNode<Key, Value>::PushFront(const byte *buf, size_t length) {
+    const size_t unit = sizeof(Key) + sizeof(Value);
+    const size_t currentLength = GetLength();
+
+    byte * currentBuf = new byte[currentLength * unit];
+    const byte * current = Read(BPTREE_HEADER_SIZE, currentLength * unit);
+    memcpy(currentBuf, current, currentLength * unit);
+    Update(BPTREE_HEADER_SIZE + length * unit, currentBuf, currentLength * unit);
+    Update(BPTREE_HEADER_SIZE, buf, length * unit);
+    SetLength(currentLength + length);
+}
+
+template<class Key, class Value>
+void BPTreeLeafNode<Key, Value>::Redistribute(const BPTreeLeafNode<Key, Value> &target, size_t bf) {
+    const size_t unit = sizeof(Key) + sizeof(Value);
+    const size_t length = GetLength();
+    const size_t targetLength = target.GetLength();
+    if (length < bf && targetLength > bf) {
+        byte * buf = new byte[unit];
+        memcpy(buf, target.Read(BPTREE_HEADER_SIZE, unit), unit);
+        Append(buf, 1);
+        target.ShiftLeft(0);
+        delete[] buf;
+    } else if (length > bf && targetLength < bf) {
+        byte * buf = new byte[unit];
+        memcpy(buf, Read(BPTREE_HEADER_SIZE + (length - 1) * unit, unit), unit);
+        target.PushFront(buf, 1);
+        SetLength(length - 1);
+        delete[] buf;
+    }
+}
+
+template<class Key, class Value>
+page_t BPTreeLeafNode<Key, Value>::GetNext() const {
+    return Header()->next;
+}
+
+template<class Key, class Value>
+void BPTreeLeafNode<Key, Value>::SetNext(page_t next) {
+    Update(LEAF_NEXT_OFFSET, next);
 }
