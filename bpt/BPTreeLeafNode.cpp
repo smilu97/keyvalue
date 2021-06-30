@@ -202,7 +202,7 @@ void BPTreeLeafNode<Key, Value>::PushFront(const byte *buf, size_t length) {
 }
 
 template<class Key, class Value>
-void BPTreeLeafNode<Key, Value>::Redistribute(const BPTreeLeafNode<Key, Value> &target, size_t bf) {
+void BPTreeLeafNode<Key, Value>::Redistribute(BPTreeLeafNode<Key, Value> &target, size_t bf) {
     const size_t unit = sizeof(Key) + sizeof(Value);
     const size_t length = GetLength();
     const size_t targetLength = target.GetLength();

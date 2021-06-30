@@ -18,6 +18,7 @@ public:
     [[nodiscard]] uint32_t Size() const { return _sz; }
     std::optional<uint32_t> GetRoom(uint32_t index) { return _rooms[index]; }
     void SetRoom(uint32_t index, uint32_t value) { _rooms[index] = value; }
+
     virtual std::optional<uint32_t> Get(uint32_t n) = 0;
     virtual std::pair<uint32_t, std::optional<uint32_t>> Load(uint32_t n) = 0;
 };

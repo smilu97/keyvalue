@@ -30,7 +30,7 @@ public:
     void Insert(Key key, const Value * pValue);
     bool Erase(Key key);
     void Merge(const BPTreeLeafNode<Key, Value> & target);
-    void Redistribute(const BPTreeLeafNode<Key, Value> & target, size_t bf);
+    void Redistribute(BPTreeLeafNode<Key, Value> & target, size_t bf);
     std::pair<Key, BPTreeLeafNode<Key, Value>> Split(page_t newPage);
 private:
     Key GetNthKey(uint32_t n) const;

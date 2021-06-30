@@ -25,7 +25,7 @@ protected:
     const PageStruct * Header() const;
     uint32_t GetType();
     void SetType(uint32_t _type);
-    void Update(offset_t offset, byte * buf, size_t size);
+    void Update(offset_t offset, const byte * buf, size_t size);
     void Update(offset_t offset, uint8_t value);
     void Update(offset_t offset, uint16_t value);
     void Update(offset_t offset, uint32_t value);

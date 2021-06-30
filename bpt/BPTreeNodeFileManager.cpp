@@ -15,7 +15,7 @@ byte * BPTreeNodeFileManager::Read(page_t page, offset_t offset, size_t size) {
     return _buf.GetPage(page) + offset;
 }
 
-void BPTreeNodeFileManager::Write(byte *buf, page_t page, offset_t offset, size_t size) {
+void BPTreeNodeFileManager::Write(const byte *buf, page_t page, offset_t offset, size_t size) {
     uint8_t * dest = _buf.GetPage(page) + offset;
     memcpy(dest, buf, size);
 }

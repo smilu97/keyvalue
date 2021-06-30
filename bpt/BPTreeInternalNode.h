@@ -35,7 +35,7 @@ public:
     void InsertBase(page_t p0, Key key, page_t p1);
     void Insert(Key key, page_t page);
     void Merge(Key midKey, const BPTreeInternalNode<Key, Value> & target);
-    Key Redistribute(Key midKey, const BPTreeInternalNode<Key, Value> & target, size_t bf);
+    Key Redistribute(Key midKey, BPTreeInternalNode<Key, Value> & target, size_t bf);
     void ReplaceKeyOf(Key key, Key newKey);
     std::pair<Key, BPTreeInternalNode<Key, Value>> Split(page_t newPage);
 private:

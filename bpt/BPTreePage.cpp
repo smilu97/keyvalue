@@ -13,7 +13,7 @@ BPTreePage<PageStruct>::BPTreePage(const std::shared_ptr<BPTreeNodeManager> &nod
 }
 
 template<class PageStruct>
-void BPTreePage<PageStruct>::Update(offset_t offset, byte *buf, size_t size) {
+void BPTreePage<PageStruct>::Update(offset_t offset, const byte *buf, size_t size) {
     _nodeMan.lock()->Write(buf, _page, offset, size);
 }
 

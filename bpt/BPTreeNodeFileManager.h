@@ -17,7 +17,7 @@ public:
                           std::unique_ptr<CachePolicy> policy,
                           uint32_t cacheSize);
     byte* Read(page_t page, offset_t offset, size_t size) override;
-    void Write(byte *buf, page_t page, offset_t offset, size_t size) override;
+    void Write(const byte *buf, page_t page, offset_t offset, size_t size) override;
     void Write8(uint8_t value, page_t page, offset_t offset) override;
     void Write16(uint16_t value, page_t page, offset_t offset) override;
     void Write32(uint32_t value, page_t page, offset_t offset) override;

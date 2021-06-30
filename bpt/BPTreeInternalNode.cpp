@@ -204,7 +204,7 @@ void BPTreeInternalNode<Key, Value>::EraseOf(Key key) {
 }
 
 template<class Key, class Value>
-Key BPTreeInternalNode<Key, Value>::Redistribute(Key midKey, const BPTreeInternalNode<Key, Value> &target, size_t bf) {
+Key BPTreeInternalNode<Key, Value>::Redistribute(Key midKey, BPTreeInternalNode<Key, Value> &target, size_t bf) {
     Key resultKey;
     const size_t unit = sizeof(Key) + sizeof(page_t);
     const size_t length = GetLength();
