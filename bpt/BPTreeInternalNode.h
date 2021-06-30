@@ -26,6 +26,7 @@ public:
     page_t FindPage(Key key) const;
     void InsertBase(page_t p0, Key key, page_t p1);
     void Insert(Key key, page_t page);
+    void Merge(Key midKey, const BPTreeInternalNode<Key, Value> & target)
     std::pair<Key, BPTreeInternalNode<Key, Value>> Split(page_t newPage);
 private:
     uint32_t FindIndex(Key key) const;

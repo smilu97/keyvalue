@@ -157,3 +157,20 @@ std::pair<Key, BPTreeInternalNode<Key, Value>> BPTreeInternalNode<Key, Value>::S
 
     return std::make_pair(midKey, right);
 }
+
+template<class Key, class Value>
+void BPTreeInternalNode<Key, Value>::Merge(Key midKey, const BPTreeInternalNode<Key, Value> &target) {
+    const size_t targetLength = target.GetLength();
+    const size_t unit = sizeof(Key) + sizeof(page_t);
+    const size_t targetSize = targetLength * unit + sizeof(Key);
+    byte * buf = new byte[targetSize];
+    byte * targetBuf = target.Read(BPTREE_HEADER_SIZE, targetSize);
+    memcpy(buf, targetBuf, targetSize);
+
+    const size_t length = GetLength();
+    SetKey(length, midKey);
+    Update(BPTREE_HEADER_SIZE + (length + 1) * unit, buf, targetSize);
+    SetLength(length + targetLength + 1);
+
+    delete[] buf;
+}
