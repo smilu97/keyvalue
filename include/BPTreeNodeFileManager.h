@@ -6,7 +6,7 @@
 #define KEYVALUE_BPTREENODEFILEMANAGER_H
 
 #include "BPTreeNodeManager.h"
-#include "buffer/FileBuffer.h"
+#include "FileBuffer.h"
 
 #include <cstring>
 

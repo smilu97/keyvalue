@@ -1,9 +1,9 @@
 #include <iostream>
 #include <string>
 
-#include "bpt/BPTree.h"
-#include "bpt/BPTreeNodeFileManager.h"
-#include "buffer/SecondChance.h"
+#include "include/BPTree.h"
+#include "include/BPTreeNodeFileManager.h"
+#include "include/SecondChance.h"
 
 struct TestScheme {
     byte content[128];
