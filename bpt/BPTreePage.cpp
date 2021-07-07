@@ -3,12 +3,13 @@
 //
 
 #include <cstring>
+#include <utility>
 
 #include "BPTreePage.h"
 
 template<class PageStruct>
-BPTreePage<PageStruct>::BPTreePage(const std::shared_ptr<BPTreeNodeManager> &nodeMan, page_t page):
-    _nodeMan(nodeMan), _page(page) {
+BPTreePage<PageStruct>::BPTreePage(std::weak_ptr<BPTreeNodeManager> nodeMan, page_t page):
+    _nodeMan(std::move(nodeMan)), _page(page) {
 
 }
 
@@ -102,6 +103,6 @@ void BPTreePage<PageStruct>::Shift(offset_t from, size_t size, offset_t offset) 
     const byte* content = Read(from, size);
     byte* buf = new byte[size];
     memcpy(buf, content, size);
-    Update(from + offset, buf);
+    Update(from + offset, buf, size);
     delete[] buf;
 }

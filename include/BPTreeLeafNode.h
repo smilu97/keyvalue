@@ -9,22 +9,22 @@
 
 #include "BPTreePage.h"
 
-#define LEAF_LENGTH_OFFSET (4)
-#define LEAF_NEXT_OFFSET (12)
-
 struct BPTreeLeafNodeStruct {
     uint32_t type;
-    uint64_t length;
-    uint64_t next;
+    size_t length;
+    page_t next;
 };
 
 template <class Key, class Value>
 class BPTreeLeafNode: public BPTreePage<BPTreeLeafNodeStruct> {
 public:
+    explicit BPTreeLeafNode(std::weak_ptr<BPTreeNodeManager> nodeMan, page_t page):
+        BPTreePage(nodeMan, page) {}
     std::optional<Value*> Find(Key key) const;
     uint32_t LowerBound(Key key) const;
+    uint32_t UpperBound(Key key) const;
     void Init() override;
-    [[nodiscard]] uint32_t GetLength() const;
+    [[nodiscard]] size_t GetLength() const;
     [[nodiscard]] Key GetKey(offset_t index) const;
     [[nodiscard]] page_t GetNext() const;
     void Insert(Key key, const Value * pValue);
@@ -35,7 +35,7 @@ public:
 private:
     Key GetNthKey(uint32_t n) const;
     const Value* GetNthValue(uint32_t n) const;
-    void SetLength(uint32_t length);
+    void SetLength(size_t length);
     void ShiftRight(uint32_t index);
     void ShiftLeft(uint32_t index);
     void SetKey(uint32_t index, Key key);

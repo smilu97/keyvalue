@@ -11,9 +11,6 @@
 #include "BPTreeLeafNode.h"
 #include "common.h"
 
-#define INTERNAL_LENGTH_OFFSET (4)
-#define INTERNAL_NEXT_OFFSET (12)
-
 struct BPTreeInternalNodeStruct {
     uint32_t type;
     uint64_t length;
@@ -23,6 +20,8 @@ struct BPTreeInternalNodeStruct {
 template <class Key, class Value>
 class BPTreeInternalNode: public BPTreePage<BPTreeInternalNodeStruct> {
 public:
+    explicit BPTreeInternalNode(std::weak_ptr<BPTreeNodeManager> nodeMan, page_t page):
+            BPTreePage(nodeMan, page) {}
     void Init() override;
     [[nodiscard]] uint32_t GetLength() const;
     [[nodiscard]] page_t GetNext() const;
@@ -41,7 +40,7 @@ public:
 private:
     void SetLength(uint32_t length);
     void SetNext(page_t next);
-    [[nodiscard]] uint32_t GetNthPage(uint32_t n) const;
+    [[nodiscard]] page_t GetNthPage(uint32_t n) const;
     void ShiftRight(uint32_t index);
     void ShiftLeft(uint32_t index);
     void SetKey(uint32_t index, Key key);

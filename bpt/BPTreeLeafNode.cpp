@@ -18,11 +18,33 @@ template<class Key, class Value>
 uint32_t BPTreeLeafNode<Key, Value>::LowerBound(Key key) const {
     const auto length = GetLength();
 
+    if (length == 0) return 0;
+
     uint32_t left = 0, right = length - 1;
     while (left < right) {
         const uint32_t mid = ((left + right) >> 1);
         const auto midKey = GetNthKey(mid);
         if (key <= midKey) {
+            right = mid;
+        } else {
+            left = mid + 1;
+        }
+    }
+
+    return left;
+}
+
+template<class Key, class Value>
+uint32_t BPTreeLeafNode<Key, Value>::UpperBound(Key key) const {
+    const auto length = GetLength();
+
+    if (length == 0) return 0;
+
+    uint32_t left = 0, right = length;
+    while (left < right) {
+        const uint32_t mid = ((left + right) >> 1);
+        const auto midKey = GetNthKey(mid);
+        if (key < midKey) {
             right = mid;
         } else {
             left = mid + 1;
@@ -42,7 +64,7 @@ std::optional<Value*> BPTreeLeafNode<Key, Value>::Find(Key key) const {
 }
 
 template<class Key, class Value>
-uint32_t BPTreeLeafNode<Key, Value>::GetLength() const {
+size_t BPTreeLeafNode<Key, Value>::GetLength() const {
     return Header()->length;
 }
 
@@ -97,19 +119,23 @@ void BPTreeLeafNode<Key, Value>::ShiftLeft(uint32_t index) {
 }
 
 template<class Key, class Value>
-void BPTreeLeafNode<Key, Value>::SetLength(uint32_t length) {
-    Update(LEAF_LENGTH_OFFSET, length);
+void BPTreeLeafNode<Key, Value>::SetLength(size_t length) {
+    Update(offsetof(BPTreeLeafNodeStruct, length), length);
 }
 
 template<class Key, class Value>
 void BPTreeLeafNode<Key, Value>::Insert(Key key, const Value *pValue) {
-    const auto index = LowerBound(key);
-    if (index == 0)
-        panic("Invalid index found");
+    std::cout << "Leaf Insert " << key << " in " << GetPage() << std::endl;
+    const auto index = UpperBound(key);
+    std::cout << "  index: " << index << std::endl;
+    const auto length = GetLength();
 
-    ShiftRight(index);
+    if (index < length) ShiftRight(index);
     SetKey(index, key);
     SetValue(index, pValue);
+    if (index == length) {
+        SetLength(length + 1);
+    }
 }
 
 template<class Key, class Value>
@@ -228,5 +254,5 @@ page_t BPTreeLeafNode<Key, Value>::GetNext() const {
 
 template<class Key, class Value>
 void BPTreeLeafNode<Key, Value>::SetNext(page_t next) {
-    Update(LEAF_NEXT_OFFSET, next);
+    Update(offsetof(BPTreeLeafNodeStruct, next), next);
 }

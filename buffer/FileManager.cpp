@@ -2,7 +2,7 @@
 
 FileManager::FileManager(const std::string &filepath) {
     const int flags = O_CREAT | O_DIRECT | O_SYNC;
-    const mode_t mode = 0x664;
+    const mode_t mode = 0644;
     _fd = open(filepath.c_str(), flags, mode);
     if (_fd < 0) {
         HandleFileOpenError();

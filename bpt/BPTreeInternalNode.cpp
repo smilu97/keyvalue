@@ -26,12 +26,12 @@ uint32_t BPTreeInternalNode<Key, Value>::GetLength() const {
 
 template<class Key, class Value>
 void BPTreeInternalNode<Key, Value>::SetLength(uint32_t length) {
-    Update(INTERNAL_LENGTH_OFFSET, length);
+    Update(offsetof(BPTreeInternalNodeStruct, length), length);
 }
 
 template<class Key, class Value>
 Key BPTreeInternalNode<Key, Value>::GetNthKey(uint32_t n) const {
-    const auto ptrSize = sizeof(uint32_t);
+    const auto ptrSize = sizeof(page_t);
     const auto keySize = sizeof(Key);
     const uint32_t offset = (ptrSize + keySize) * n + ptrSize;
     Key key = *((Key*) Read(BPTREE_HEADER_SIZE + offset, keySize));
@@ -39,16 +39,17 @@ Key BPTreeInternalNode<Key, Value>::GetNthKey(uint32_t n) const {
 }
 
 template<class Key, class Value>
-uint32_t BPTreeInternalNode<Key, Value>::GetNthPage(uint32_t n) const {
-    const auto ptrSize = sizeof(uint32_t);
+page_t BPTreeInternalNode<Key, Value>::GetNthPage(uint32_t n) const {
+    const auto ptrSize = sizeof(page_t);
     const auto keySize = sizeof(Key);
-    const uint32_t offset = (ptrSize + keySize) * n;
-    uint32_t key = *((uint32_t*) Read(BPTREE_HEADER_SIZE + offset, ptrSize));
+    const offset_t offset = (ptrSize + keySize) * n;
+    page_t key = *((page_t*) Read(BPTREE_HEADER_SIZE + offset, ptrSize));
     return key;
 }
 
 template<class Key, class Value>
 void BPTreeInternalNode<Key, Value>::Insert(Key key, page_t page) {
+    std::cout << "Internal Insert (" << key << ", " << page << ") in " << GetPage() << std::endl;
     const auto index = FindIndex(key);
     if (index == 0)
         panic("Invalid index found");
@@ -72,6 +73,8 @@ uint32_t BPTreeInternalNode<Key, Value>::FindIndex(Key key) const {
             right = mid;
         }
     }
+
+    std::cout << "FindIndex(" << key << "): " << left << std::endl;
 
     return left;
 }
@@ -114,15 +117,15 @@ void BPTreeInternalNode<Key, Value>::ShiftLeft(uint32_t index) {
 
 template<class Key, class Value>
 void BPTreeInternalNode<Key, Value>::SetKey(uint32_t index, Key key) {
-    const size_t unit = sizeof(Key) + sizeof(page_t);
-    const size_t offset = BPTREE_HEADER_SIZE + unit * index;
+    const size_t unit = sizeof(page_t) + sizeof(Key);
+    const size_t offset = BPTREE_HEADER_SIZE + sizeof(page_t) + unit * index;
     Update(offset, (byte*) &key, sizeof(Key));
 }
 
 template<class Key, class Value>
 void BPTreeInternalNode<Key, Value>::SetPtr(uint32_t index, page_t page) {
     const size_t unit = sizeof(Key) + sizeof(page_t);
-    const size_t offset = BPTREE_HEADER_SIZE + sizeof(Key) + unit * index;
+    const size_t offset = BPTREE_HEADER_SIZE + unit * index;
     Update(offset, (byte*) &page, sizeof(page_t));
 }
 
@@ -149,7 +152,7 @@ std::pair<Key, BPTreeInternalNode<Key, Value>> BPTreeInternalNode<Key, Value>::S
     auto midKey = GetNthKey((length - 1) >> 1);
     SetLength(leftLength);
 
-    auto right = BPTreeLeafNode<Key, Value>(GetNodeManager(), newPage);
+    auto right = BPTreeInternalNode<Key, Value>(GetNodeManager(), newPage);
     right.Init();
     right.Update(BPTREE_HEADER_SIZE, buf, rightSize);
     right.SetLength(rightLength);
@@ -183,7 +186,7 @@ page_t BPTreeInternalNode<Key, Value>::GetNext() const {
 
 template<class Key, class Value>
 void BPTreeInternalNode<Key, Value>::SetNext(page_t next) {
-    Update(INTERNAL_NEXT_OFFSET, next);
+    Update(offsetof(BPTreeInternalNodeStruct, next), next);
 }
 
 template<class Key, class Value>

@@ -15,7 +15,7 @@ class BPTreePage {
     std::weak_ptr<BPTreeNodeManager> _nodeMan;
     page_t _page;
 public:
-    explicit BPTreePage(const std::shared_ptr<BPTreeNodeManager>& nodeMan, page_t page);
+    explicit BPTreePage(std::weak_ptr<BPTreeNodeManager> nodeMan, page_t page);
     bool IsHeader();
     bool IsInternal();
     bool IsLeaf();

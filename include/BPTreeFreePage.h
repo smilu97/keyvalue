@@ -5,9 +5,9 @@
 #ifndef KEYVALUE_BPTREEFREEPAGE_H
 #define KEYVALUE_BPTREEFREEPAGE_H
 
-#include "BPTreePage.h"
+#include <utility>
 
-#define FREEPAGE_NEXT_OFFSET (4)
+#include "BPTreePage.h"
 
 struct BPTreeFreePageStruct {
     uint32_t type;
@@ -16,7 +16,8 @@ struct BPTreeFreePageStruct {
 
 class BPTreeFreePage: public BPTreePage<BPTreeFreePageStruct> {
 public:
-    BPTreeFreePage(std::shared_ptr<BPTreeNodeManager> &nodeMan, uint32_t page);
+    explicit BPTreeFreePage(std::weak_ptr<BPTreeNodeManager> nodeMan, page_t page = 0):
+        BPTreePage(std::move(nodeMan), page) {}
 
     void Init() override;
     [[nodiscard]] uint32_t GetNext() const;

@@ -9,15 +9,10 @@ uint32_t BPTreeFreePage::GetNext() const {
 }
 
 void BPTreeFreePage::SetNext(uint32_t next) {
-    Update(FREEPAGE_NEXT_OFFSET, next);
+    Update(offsetof(BPTreeFreePageStruct, next), next);
 }
 
 void BPTreeFreePage::Init() {
     SetType(BPTREE_PAGE_TYPE_FREE);
     SetNext(0);
-}
-
-BPTreeFreePage::BPTreeFreePage(std::shared_ptr<BPTreeNodeManager> &nodeMan, uint32_t page):
-    BPTreePage<BPTreeFreePageStruct>(nodeMan, page) {
-
 }

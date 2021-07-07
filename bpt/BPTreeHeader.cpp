@@ -16,7 +16,7 @@ uint32_t BPTreeHeader::GetRoot() const {
 }
 
 void BPTreeHeader::SetRoot(uint32_t _root) {
-    Update(HEADER_ROOT_OFFSET, _root);
+    Update(offsetof(BPTreeHeaderStruct, root), _root);
 }
 
 uint32_t BPTreeHeader::GetFree() const {
@@ -24,7 +24,7 @@ uint32_t BPTreeHeader::GetFree() const {
 }
 
 void BPTreeHeader::SetFree(uint32_t _free) {
-    Update(HEADER_FREE_OFFSET, _free);
+    Update(offsetof(BPTreeHeaderStruct, free), _free);
 }
 
 uint32_t BPTreeHeader::GetLength() const {
@@ -32,5 +32,5 @@ uint32_t BPTreeHeader::GetLength() const {
 }
 
 void BPTreeHeader::SetLength(uint32_t _length) {
-    Update(HEADER_LENGTH_OFFSET, _length);
+    Update(offsetof(BPTreeHeaderStruct, length), _length);
 }

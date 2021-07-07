@@ -4,11 +4,11 @@
 
 #include "SecondChance.h"
 
-SecondChance::SecondChance(uint32_t sz): CachePolicy(sz), _lifes(sz), _cur(0) {
+SecondChance::SecondChance(uint64_t sz): CachePolicy(sz), _lifes(sz), _cur(0) {
 
 }
 
-std::optional<uint32_t> SecondChance::Get(uint32_t n) {
+std::optional<uint64_t> SecondChance::Get(uint64_t n) {
     auto it = _position.find(n);
     if (it == _position.end()) {
         return std::nullopt;
@@ -17,8 +17,8 @@ std::optional<uint32_t> SecondChance::Get(uint32_t n) {
     return it->second;
 }
 
-std::pair<uint32_t, std::optional<uint32_t>> SecondChance::Load(uint32_t n) {
-    const uint32_t sz = Size();
+std::pair<uint64_t, std::optional<uint64_t>> SecondChance::Load(uint64_t n) {
+    const uint64_t sz = Size();
 
     while (_lifes[_cur]) {
         _lifes[_cur] = 0;

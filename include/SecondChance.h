@@ -13,13 +13,13 @@
 #include <cstdint>
 
 class SecondChance: public CachePolicy {
-    uint32_t _cur;
-    std::unordered_map<uint32_t, uint32_t> _position;
+    uint64_t _cur;
+    std::unordered_map<uint64_t, uint64_t> _position;
     std::vector<uint8_t> _lifes;
 public:
-    explicit SecondChance(uint32_t sz);
-    std::optional<uint32_t> Get(uint32_t n) override;
-    std::pair<uint32_t, std::optional<uint32_t>> Load(uint32_t n) override;
+    explicit SecondChance(uint64_t sz);
+    std::optional<uint64_t> Get(uint64_t n) override;
+    std::pair<uint64_t, std::optional<uint64_t>> Load(uint64_t n) override;
 };
 
 

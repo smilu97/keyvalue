@@ -6,14 +6,11 @@
 #define KEYVALUE_BPTREEHEADER_H
 
 #include <memory>
+#include <utility>
 
 #include "BPTreeNodeManager.h"
 #include "BPTreePage.h"
 #include "common.h"
-
-#define HEADER_ROOT_OFFSET (4)
-#define HEADER_FREE_OFFSET (8)
-#define HEADER_LENGTH_OFFSET (12)
 
 struct BPTreeHeaderStruct {
     uint32_t type;
@@ -25,6 +22,8 @@ struct BPTreeHeaderStruct {
 class BPTreeHeader: public BPTreePage<BPTreeHeaderStruct> {
     std::weak_ptr<BPTreeNodeManager> _nodeMan;
 public:
+    explicit BPTreeHeader(std::weak_ptr<BPTreeNodeManager> nodeMan, page_t page = 0):
+            BPTreePage(std::move(nodeMan), page) {}
     void Init() override;
     [[nodiscard]] uint32_t GetRoot() const;
     void SetRoot(uint32_t _root);
