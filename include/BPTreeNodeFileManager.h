@@ -22,6 +22,7 @@ public:
     void Write16(uint16_t value, page_t page, offset_t offset) override;
     void Write32(uint32_t value, page_t page, offset_t offset) override;
     void Write64(uint64_t value, page_t page, offset_t offset) override;
+    void flush() override;
 };
 
 

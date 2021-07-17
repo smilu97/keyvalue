@@ -21,6 +21,7 @@ public:
     FileBuffer(const std::string &filepath, std::unique_ptr<CachePolicy> policy, size_t sz);
     ~FileBuffer();
     byte* GetPage(page_t n);
+    void flush() const;
 private:
     byte* LoadPage(page_t n);
 };

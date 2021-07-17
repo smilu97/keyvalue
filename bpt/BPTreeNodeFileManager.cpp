@@ -39,3 +39,7 @@ void BPTreeNodeFileManager::Write64(uint64_t value, page_t page, offset_t offset
     uint64_t * dest = ((uint64_t*) (_buf.GetPage(page) + offset));
     *dest = value;
 }
+
+void BPTreeNodeFileManager::flush() {
+    _buf.flush();
+}

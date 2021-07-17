@@ -225,3 +225,8 @@ void BPTree<Key, Value>::FreePage(page_t page) {
     freePage.SetNext(freeHead);
     Header().SetFree(page);
 }
+
+template<class Key, class Value>
+void BPTree<Key, Value>::flush() const {
+    _nodeMan->flush();
+}

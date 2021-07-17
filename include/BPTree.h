@@ -25,6 +25,7 @@ public:
     std::optional<Value*> Find(Key key) const;
     bool Erase(Key key);
     void Insert(Key key, const Value* pValue);
+    void flush() const;
 private:
     [[nodiscard]] BPTreeHeader Header() const;
     std::optional<BPTreeLeafNode<Key, Value>> FindLeaf(Key key) const;

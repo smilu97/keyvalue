@@ -17,6 +17,7 @@ public:
     virtual void Write16(uint16_t value, page_t page, offset_t offset) = 0;
     virtual void Write32(uint32_t value, page_t page, offset_t offset) = 0;
     virtual void Write64(uint64_t value, page_t page, offset_t offset) = 0;
+    virtual void flush() = 0;
 };
 
 
