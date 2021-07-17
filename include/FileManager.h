@@ -5,10 +5,7 @@
 #ifndef KEYVALUE_FILEMANAGER_H
 #define KEYVALUE_FILEMANAGER_H
 
-#include <iostream>
 #include <string>
-#include <unistd.h>
-#include <fcntl.h>
 
 class FileManager {
     int _fd;

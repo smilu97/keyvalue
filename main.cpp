@@ -1,6 +1,8 @@
 #include <iostream>
 #include <string>
 #include <cstring>
+#include <fcntl.h>
+#include <armadillo>
 
 #include "include/BPTree.h"
 #include "include/BPTreeNodeFileManager.h"
@@ -34,8 +36,9 @@ int main() {
         tree.Insert(i, item);
     }
 
-
     delete item;
+
+    tree.flush();
     
     std::cout << "Hello, World!" << std::endl;
 
