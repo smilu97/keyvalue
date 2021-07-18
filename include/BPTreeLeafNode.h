@@ -20,7 +20,8 @@ class BPTreeLeafNode: public BPTreePage<BPTreeLeafNodeStruct> {
 public:
     explicit BPTreeLeafNode(std::weak_ptr<BPTreeNodeManager> nodeMan, page_t page):
         BPTreePage(nodeMan, page) {}
-    std::optional<Value*> Find(Key key) const;
+
+    std::optional<const Value*> Find(Key key) const;
     uint32_t LowerBound(Key key) const;
     uint32_t UpperBound(Key key) const;
     void Init() override;

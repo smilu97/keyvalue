@@ -23,7 +23,6 @@ void FileBuffer::flush() const {
         uint64_t p = op.value();
         uint8_t * buf = _buf + (PAGE_SIZE * i);
         _file.Write(buf, PAGE_SIZE * p, PAGE_SIZE);
-        std::cout << "Flushed page " << p << std::endl;
     }
 }
 
@@ -40,7 +39,6 @@ uint8_t* FileBuffer::LoadPage(page_t n) {
     uint8_t * buf = _buf + (PAGE_SIZE * replace.first);
     if (replace.second.has_value()) {
         _file.Write(buf, PAGE_SIZE * replace.second.value(), PAGE_SIZE);
-        std::cout << "Flushed page " << replace.second.value() << " for replace" << std::endl;
     }
     _file.Read(buf, PAGE_SIZE * n, PAGE_SIZE);
     return buf;

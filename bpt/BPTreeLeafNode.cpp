@@ -55,8 +55,10 @@ uint32_t BPTreeLeafNode<Key, Value>::UpperBound(Key key) const {
 }
 
 template<class Key, class Value>
-std::optional<Value*> BPTreeLeafNode<Key, Value>::Find(Key key) const {
+std::optional<const Value*> BPTreeLeafNode<Key, Value>::Find(Key key) const {
     const uint32_t index = LowerBound(key);
+    std::cout << "Leaf Find " << key << " index: " << index << std::endl;
+    std::cout << "GetNthKey(" << index << "): " << GetNthKey(index) << std::endl;
     if (GetNthKey(index) != key)
         return std::nullopt;
 
@@ -108,9 +110,9 @@ void BPTreeLeafNode<Key, Value>::ShiftLeft(uint32_t index) {
         panic("Invalid ShiftLeft on InternalNode");
     }
 
-    const size_t unit = sizeof(Key) + sizeof(page_t);
-    const size_t whole = unit * length + sizeof(Key);
-    const size_t leftSize = unit * index + sizeof(Key);
+    const size_t unit = sizeof(Key) + sizeof(Value);
+    const size_t whole = unit * length;
+    const size_t leftSize = unit * index;
     const size_t rightSize = whole - leftSize - unit;
     const size_t midOffset = BPTREE_HEADER_SIZE + leftSize + unit;
 
@@ -158,6 +160,8 @@ std::pair<Key, BPTreeLeafNode<Key, Value>> BPTreeLeafNode<Key, Value>::Split(pag
     const size_t leftLength = (length >> 1);
     const size_t rightLength = length - leftLength;
     const size_t unit = sizeof(Key) + sizeof(Value);
+    const page_t next = GetNext();
+    SetNext(newPage);
 
     const byte* rightContent = Read(BPTREE_HEADER_SIZE + leftLength * unit, rightLength * unit);
     byte* buf = new byte[rightLength * unit];
@@ -168,6 +172,7 @@ std::pair<Key, BPTreeLeafNode<Key, Value>> BPTreeLeafNode<Key, Value>::Split(pag
     right.Init();
     right.Update(BPTREE_HEADER_SIZE, buf, rightLength * unit);
     right.SetLength(rightLength);
+    right.SetNext(next);
     auto rightFirst = right.GetKey(0);
 
     delete[] buf;
@@ -188,6 +193,13 @@ bool BPTreeLeafNode<Key, Value>::Erase(Key key) {
         return false;
 
     ShiftLeft(index);
+
+    std::cout << "Leaf Erase " << key << " in " << index << std::endl;
+    std::cout << "  leaf state: ";
+    for (int i = 0; i < GetLength(); i++) {
+        std::cout << GetNthKey(i) << ' ';
+    } std::cout << std::endl;
+
     return true;
 }
 

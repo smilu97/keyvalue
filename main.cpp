@@ -24,23 +24,39 @@ int main() {
     const uint32_t cacheSize = 1000;
     const float branchFactorMultiplier = 0.8;
 
+    unlink("test.db");
+
     std::unique_ptr<CachePolicy> policy(new SecondChance(cacheSize));
     std::shared_ptr<BPTreeNodeManager> nodeMan(new BPTreeNodeFileManager(
             filepath, std::move(policy), cacheSize
         ));
     BPTree<uint32_t, TestScheme> tree(nodeMan, branchFactorMultiplier);
     auto item = GetTestItem();
+    const int testLength = 40;
 
-    for (int i = 0; i < 10000; i++) {
+    for (int i = 0; i < testLength; i++) {
         item->value = i;
         tree.Insert(i, item);
+    }
+
+    for (int i = 0; i < testLength; i++) {
+        if (i & 1) tree.Erase(i);
+    }
+
+    for (int i = 0; i < testLength; i++) {
+        if (i & 1) continue;
+        std::cout << "Check " << i << " existence" << std::endl;
+        auto res = tree.Find(i);
+        if (!res.has_value()) {
+            std::cout << "not found " << i << std::endl;
+        } else if (res.value()->value != i) {
+            std::cout << "mismatch: " << i << std::endl;
+        }
     }
 
     delete item;
 
     tree.flush();
-    
-    std::cout << "Hello, World!" << std::endl;
 
     return 0;
 }

@@ -22,7 +22,7 @@ class BPTree {
     uint32_t _leafBranchFactor;
 public:
     explicit BPTree(std::shared_ptr<BPTreeNodeManager> nodeMan, float branchFactorMultiplier = 0.8);
-    std::optional<Value*> Find(Key key) const;
+    std::optional<const Value*> Find(Key key) const;
     bool Erase(Key key);
     void Insert(Key key, const Value* pValue);
     void flush() const;

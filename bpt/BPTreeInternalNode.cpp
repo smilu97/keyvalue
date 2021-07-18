@@ -3,6 +3,7 @@
 //
 
 #include <cstring>
+#include <iostream>
 
 #include "BPTreeInternalNode.h"
 #include "util.h"
@@ -11,7 +12,7 @@ template<class Key, class Value>
 void BPTreeInternalNode<Key, Value>::Init() {
     SetType(BPTREE_PAGE_TYPE_INTERNAL);
     SetLength(0);
-
+    SetNext(0);
 }
 
 template<class Key, class Value>
@@ -51,30 +52,46 @@ template<class Key, class Value>
 void BPTreeInternalNode<Key, Value>::Insert(Key key, page_t page) {
     std::cout << "Internal Insert (" << key << ", " << page << ") in " << GetPage() << std::endl;
     const auto index = FindIndex(key);
+    std::cout << "Internal Insert in " << index << ", length: " << GetLength() << std::endl;
     if (index == 0)
         panic("Invalid index found");
 
-    ShiftRight(index);
+    const auto length = GetLength();
+    if (length == index) {
+        SetLength(length + 1);
+    } else {
+        ShiftRight(index);
+    }
+
     SetKey(index, key);
-    SetPtr(index, page);
+    SetPtr(index+1, page);
+
+    std::cout << "  internal " << GetPage() << " state: " << GetNthPage(0) << ' ';
+    for (int i = 0; i < GetLength(); i++) {
+        std::cout << GetNthKey(i) << ' ' << GetNthPage(i+1) << ' ';
+    } std::cout << std::endl;
 }
 
 template<class Key, class Value>
 uint32_t BPTreeInternalNode<Key, Value>::FindIndex(Key key) const {
     const auto length = GetLength();
 
+    if (length == 0) return 0;
+    if (key < GetNthKey(0)) return 0;
+
     uint32_t left = 0, right = length;
-    while (left < right) {
+    while (left + 1 < right) {
         uint32_t mid = ((left + right) >> 1);
         const auto midKey = GetNthKey(mid);
         if (key >= midKey) {
-            left = mid + 1;
+            left = mid;
         } else {
             right = mid;
         }
     }
+    ++left;
 
-    std::cout << "FindIndex(" << key << "): " << left << std::endl;
+    std::cout << GetPage() << ": FindIndex(" << key << "): " << left << std::endl;
 
     return left;
 }
@@ -88,8 +105,8 @@ void BPTreeInternalNode<Key, Value>::ShiftRight(uint32_t index) {
     }
 
     const size_t unit = sizeof(Key) + sizeof(page_t);
-    const size_t whole = unit * length + sizeof(Key);
-    const size_t leftSize = unit * index + sizeof(Key);
+    const size_t whole = unit * length + sizeof(page_t);
+    const size_t leftSize = unit * index + sizeof(page_t);
     const size_t rightSize = whole - leftSize;
     const size_t midOffset = BPTREE_HEADER_SIZE + leftSize;
 
@@ -145,6 +162,8 @@ std::pair<Key, BPTreeInternalNode<Key, Value>> BPTreeInternalNode<Key, Value>::S
     const size_t unit = sizeof(Key) + sizeof(page_t);
     const size_t rightSize = rightLength * unit + sizeof(Key);
     const size_t rightOffset = BPTREE_HEADER_SIZE + (leftLength + 1) * unit;
+    const page_t next = GetNext();
+    SetNext(newPage);
 
     const byte* rightContent = Read(rightOffset, rightSize);
     byte* buf = new byte[rightSize];
@@ -156,6 +175,7 @@ std::pair<Key, BPTreeInternalNode<Key, Value>> BPTreeInternalNode<Key, Value>::S
     right.Init();
     right.Update(BPTREE_HEADER_SIZE, buf, rightSize);
     right.SetLength(rightLength);
+    right.SetNext(next);
 
     delete[] buf;
 
@@ -204,6 +224,11 @@ void BPTreeInternalNode<Key, Value>::EraseOf(Key key) {
     if (index == 0)
         panic("Invalid EraseOf key: First child must not be erased");
     ShiftLeft(index - 1);
+
+    std::cout << "  internal " << GetPage() << " state: " << GetNthPage(0) << ' ';
+    for (int i = 0; i < GetLength(); i++) {
+        std::cout << GetNthKey(i) << ' ' << GetNthPage(i+1) << ' ';
+    } std::cout << std::endl;
 }
 
 template<class Key, class Value>

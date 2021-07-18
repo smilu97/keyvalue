@@ -29,7 +29,7 @@ BPTreeHeader BPTree<Key, Value>::Header() const {
 
 template<class Key, class Value>
 std::optional<BPTreeLeafNode<Key, Value>> BPTree<Key, Value>::FindLeaf(Key key) const {
-    auto rootPage = Header()->GetRoot();
+    auto rootPage = Header().GetRoot();
     if (rootPage == 0) {
         return std::nullopt;
     }
@@ -44,7 +44,7 @@ std::optional<BPTreeLeafNode<Key, Value>> BPTree<Key, Value>::FindLeaf(Key key) 
 }
 
 template<class Key, class Value>
-std::optional<Value*> BPTree<Key, Value>::Find(Key key) const {
+std::optional<const Value*> BPTree<Key, Value>::Find(Key key) const {
     std::optional<BPTreeLeafNode<Key, Value>> leaf = FindLeaf(key);
     if (false == leaf.has_value()) {
         return std::nullopt;
@@ -81,7 +81,7 @@ void BPTree<Key, Value>::Insert(Key key, const Value *pValue) {
             auto newKey = leafSplitResult.first;
             auto newPage = leafSplitResult.second.GetPage();
             bool splitRoot = true;
-            page_t parentPage = leaf.GetLength();
+            page_t parentPage = leaf.GetPage();
             while (false == internals.empty()) {
                 auto parent = internals.top();
                 parentPage = parent.GetPage();
@@ -133,8 +133,7 @@ uint32_t BPTree<Key, Value>::AppendPage() {
 
 template<class Key, class Value>
 bool BPTree<Key, Value>::Erase(Key key) {
-    BPTreeLeafNode<Key, Value> leaf;
-    uint32_t rootPage = Header()->GetRoot();
+    uint32_t rootPage = Header().GetRoot();
 
     if (rootPage == 0) {
         return false;
@@ -143,7 +142,7 @@ bool BPTree<Key, Value>::Erase(Key key) {
         auto cur = BPTreeInternalNode<Key, Value>(_nodeMan, rootPage);
         while (cur.IsInternal()) {
             internals.push(cur);
-            cur = cur.FindPage(key);
+            cur = BPTreeInternalNode<Key, Value>(_nodeMan, cur.FindPage(key));
         }
         auto leaf = BPTreeLeafNode<Key, Value>(_nodeMan, cur.GetPage());
         if (false == leaf.Erase(key))
@@ -154,7 +153,7 @@ bool BPTree<Key, Value>::Erase(Key key) {
                 return true;
 
             page_t nextPage = leaf.GetNext();
-            BPTreeLeafNode<Key, Value> nextLeaf;
+            BPTreeLeafNode<Key, Value> nextLeaf(_nodeMan, 0); // temporary initialization, this must be updated and used
             if (nextPage == 0) {
                 const page_t leftPage = internals.top().FindLeftOf(key);
                 nextLeaf = BPTreeLeafNode<Key, Value>(_nodeMan, leftPage);
@@ -166,8 +165,8 @@ bool BPTree<Key, Value>::Erase(Key key) {
             if (leaf.GetLength() == _leafBranchFactor
                 || nextLeaf.GetLength() == _leafBranchFactor) {
                 leaf.Merge(nextLeaf);
-                FreePage(nextLeaf.GetPage());
                 internals.top().EraseOf(nextLeaf.GetKey(0));
+                FreePage(nextLeaf.GetPage());
             } else {
                 leaf.Redistribute(nextLeaf, _leafBranchFactor);
                 return true;
@@ -175,18 +174,19 @@ bool BPTree<Key, Value>::Erase(Key key) {
 
             while (false == internals.empty()
                 && internals.top().GetLength() < _internalBranchFactor) {
-                BPTreeInternalNode<Key, Value> curr, nextInternal;
-                curr = internals.top();
+
+                BPTreeInternalNode<Key, Value> curr = internals.top();
+                BPTreeInternalNode<Key, Value> nextInternal = internals.top();
                 internals.pop();
 
                 if (internals.empty())
-                    return true;
+                    break;
 
                 BPTreeInternalNode<Key, Value> parent = internals.top();
 
                 if (curr.GetNext() == 0) {
                     nextInternal = BPTreeInternalNode<Key, Value>(_nodeMan, parent.FindLeftOf(key));
-                    swap(curr, nextInternal);
+                    std::swap(curr, nextInternal);
                 } else {
                     nextInternal = BPTreeInternalNode<Key, Value>(_nodeMan, curr.GetNext());
                 }
@@ -211,6 +211,7 @@ bool BPTree<Key, Value>::Erase(Key key) {
     if (internalRoot.IsInternal() && internalRoot.GetLength() == 0) {
         const page_t nextRoot = internalRoot.GetFirstPage();
         FreePage(rootPage);
+        std::cout << "New root by erase: " << nextRoot << std::endl;
         Header().SetRoot(nextRoot);
     }
 
@@ -219,7 +220,7 @@ bool BPTree<Key, Value>::Erase(Key key) {
 
 template<class Key, class Value>
 void BPTree<Key, Value>::FreePage(page_t page) {
-    auto freeHead = Header()->GetFree();
+    auto freeHead = Header().GetFree();
     auto freePage = BPTreeFreePage(_nodeMan, page);
     freePage.Init();
     freePage.SetNext(freeHead);

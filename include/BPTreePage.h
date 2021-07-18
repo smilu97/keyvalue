@@ -19,7 +19,7 @@ public:
     bool IsHeader();
     bool IsInternal();
     bool IsLeaf();
-    page_t GetPage() { return _page; }
+    page_t GetPage() const { return _page; }
     virtual void Init() = 0;
 protected:
     const PageStruct * Header() const;
